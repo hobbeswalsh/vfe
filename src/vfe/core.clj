@@ -4,6 +4,8 @@
     [cemerick.friend :as friend]
     (cemerick.friend [workflows :as workflows]
                      [credentials :as creds])
+    [compojure.core :refer :all]
+    [compojure.route :as route]
     (ring.middleware
       [params :refer [wrap-params]]
       [nested-params :refer [wrap-nested-params]]
@@ -19,8 +21,14 @@
                     :password (creds/hash-bcrypt "user_password")
                     :roles #{::user}}})
 
-(defn unsecured-app [request]
-  {:body "HEYYA" :status 200})
+
+(defn index [request]
+  (html
+    [:h1 "Hebbo world"]))
+
+(defroutes unsecured-app
+  (GET "/"  [request] (index request))
+  (route/not-found "<h1>Page not found</h1>"))
 
 (def app
   (-> unsecured-app

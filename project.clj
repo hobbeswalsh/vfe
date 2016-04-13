@@ -7,6 +7,8 @@
   :ring  {:handler vfe.core/app}
   :dependencies [
                  [org.clojure/clojure "1.8.0"]
+                 [compojure "1.5.0"]
+                 [com.stuartsierra/component "0.3.1"]
                  [counsyl/vault-clj "0.3.0-SNAPSHOT"]
                  [hiccup "1.0.5"]
                  [org.apache.httpcomponents/httpclient "4.3.5"]
