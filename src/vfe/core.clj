@@ -14,23 +14,24 @@
     [hiccup.core :refer [html]]
     [vault.client :as vault]))
 
-(def users {"root" {:username "root"
-                    :password (creds/hash-bcrypt "admin_password")
-                    :roles #{::admin}}
-            "robin" {:username "robin"
-                     :password (creds/hash-bcrypt "asd")
-                     :roles #{::user ::admin}}
-            "jane" {:username "jane"
-                    :password (creds/hash-bcrypt "user_password")
-                    :roles #{::user}}})
+(def vault-url "http://localhost:8200")
 
+(defn login-userpass [username password]
+  (let [c (vault/http-client vault-url)]
+    (vault/authenticate! c :userpass  {:username username, :password password})))
+
+(defn auth-user-pass [creds]
+  (let [username (:username creds)
+        password (:password creds)]
+    (try
+      (let [c (login-userpass username password)]
+        {:identity @(:token c)})
+      (catch Exception e nil))))
 
 (defn index [request]
   (prn request)
   (html
-    [:h1 "Hebbo world"]
-    ))
-
+    [:h1 "Hebbo world"])) 
 
 
 (defn login [request]
@@ -38,18 +39,9 @@
     [:h1 "Hokay. Log in plox."
     [:div
      [:form {:method "POST" :action "/login"}
-      [:p
-       [:input {:type "text" :name "username" :placeholder "username"}]]
-      [:p
-       [:input {:type "password" :name "password" :placeholder "assword"}]]
-      [:p 
-       [:input {:type "submit" :name "commit" :value "Login"}]]
-
-       
-      ]
-     ]]
-    )
-  )
+      [:p [:input {:type "text" :name "username" :placeholder "username"}]]
+      [:p [:input {:type "password" :name "password" :placeholder "assword"}]]
+      [:p [:input {:type "submit" :name "commit" :value "Login"}]]]]]))
 
 (defn wrap-prn [handler]
   (fn [request]
@@ -63,7 +55,7 @@
 
 (def app
   (-> unsecured-app
-    (friend/authenticate {:credential-fn (partial creds/bcrypt-credential-fn users)
+    (friend/authenticate {:credential-fn auth-user-pass
                           :workflows [(workflows/interactive-form)]})
     (wrap-prn)
     (wrap-params)
