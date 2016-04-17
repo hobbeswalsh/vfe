@@ -20,26 +20,28 @@
   (let [c (vault/http-client vault-url)]
     (vault/authenticate! c :userpass  {:username username, :password password})))
 
-(defn auth-user-pass [creds]
+(defn vault-auth [creds]
   (let [username (:username creds)
+        bar (:bar creds)
         password (:password creds)]
+    (prn creds)
     (try
       (let [c (login-userpass username password)]
         {:identity @(:token c)})
       (catch Exception e nil))))
 
 (defn index [request]
-  (prn request)
   (html
     [:h1 "Hebbo world"])) 
 
 
 (defn login [request]
   (html
-    [:h1 "Hokay. Log in plox."
+    [:h1 "Log in"
     [:div
      [:form {:method "POST" :action "/login"}
       [:p [:input {:type "text" :name "username" :placeholder "username"}]]
+      [:p [:input {:type "text" :name "bar" :placeholder "BAR"}]]
       [:p [:input {:type "password" :name "password" :placeholder "assword"}]]
       [:p [:input {:type "submit" :name "commit" :value "Login"}]]]]]))
 
@@ -55,7 +57,7 @@
 
 (def app
   (-> unsecured-app
-    (friend/authenticate {:credential-fn auth-user-pass
+    (friend/authenticate {:credential-fn vault-auth
                           :workflows [(workflows/interactive-form)]})
     (wrap-prn)
     (wrap-params)
