@@ -30,20 +30,35 @@
         {:identity @(:token c)})
       (catch Exception e nil))))
 
-(defn index [request]
+(defn page [body]
   (html
-    [:h1 "Hebbo world"])) 
+    [:head
+     [:link {:rel "stylesheet" :href "http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"}]]
+    [:body
+     body]
+
+    [:script {:src "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"}]
+    )
+  )
+
+(defn index [request]
+  (page
+    [:nav {:class "navbar"}
+     [:ol {:class "breadcrumb"} [:li "One"] [:li "Two"] [:li "Three"]]
+     ]
+    ))
 
 
 (defn login [request]
-  (html
-    [:h1 "Log in"
-    [:div
-     [:form {:method "POST" :action "/login"}
-      [:p [:input {:type "text" :name "username" :placeholder "username"}]]
-      [:p [:input {:type "text" :name "bar" :placeholder "BAR"}]]
-      [:p [:input {:type "password" :name "password" :placeholder "assword"}]]
-      [:p [:input {:type "submit" :name "commit" :value "Login"}]]]]]))
+  (page
+    [:div {:class "container"}
+     [:form {:class "form-inline" :method "POST" :action "/login"}
+      [:div {:class "form-group"}
+
+      [:p [:input {:type "text" :name "username" :placeholder "username"}]]]
+      [:div {:class "form-group"}
+      [:p [:input {:type "password" :name "password" :placeholder "password"}]]]
+      [:p [:input {:type "submit" :name "commit" :value "Login"}]]]]))
 
 (defn wrap-prn [handler]
   (fn [request]
