@@ -50,16 +50,24 @@
     (prn request)
     (handler request)))
 
+(defn foo [path]
+  (prn path)
+  (html
+    [:h1 "Cool yo"]
+    )
+  )
+
 (defroutes unsecured-app
-  (GET "/"  [request] (index request))
-  (GET "/login"  [request] (login request))
+  (GET "/"  request  (index request))
+  (GET "/login"  request  (login request))
+  (GET "/secret/*" [path] (friend/authenticated (foo path)))
   (route/not-found "<h1>Page not found</h1>"))
 
 (def app
   (-> unsecured-app
     (friend/authenticate {:credential-fn vault-auth
                           :workflows [(workflows/interactive-form)]})
-    (wrap-prn)
+    #_(wrap-prn)
     (wrap-params)
     (wrap-nested-params)
     (wrap-keyword-params)
